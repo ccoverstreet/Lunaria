@@ -30,6 +30,10 @@
 			})
 
 	}
+
+	function hide() {
+		wrapperElem.style.display = "none";
+	}
 </script>
 
 
@@ -65,23 +69,30 @@
 				</div>
 			</div>
 
-			<button on:click={addItem} class="button">Add Item</button>
+			<div style="display: flex;">
+				<button on:click={addItem} class="button">Add Item</button>
+				<div style="flex-grow: 1"></div>
+				<button on:click={hide} class="button">Cancel</button>
+			</div>
 		</form>
 	</div>
 </div>
 
 <style>
 	#wrapper {
+		display: none;
 		position: fixed;
 		left: 0;
 		top: 0;
-		z-index: 1000;
-		display: flex;
+		z-index: 100;
 		justify-content: center;
-		width: 100%;
+		width: 100vw;
+		height: 100vh;
+		background-color: rgba(0, 0, 0, 0.3);
 	}
 
 	#new-item {
+		border-radius: 0.5rem;
 		padding: 1rem;
 		margin: auto;
 	}

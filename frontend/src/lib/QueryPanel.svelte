@@ -3,11 +3,11 @@
 
 
 	let items = []
-	$: netExpense = items.length > 0? items.reduce((psum, a) => psum + a.data.val, 0).toFixed(2) : 0;
-	$: avg = items.length > 0 ? netExpense / items.length : 0;
-	$: variance = items.length > 0 ? 
-		items.reduce((psum, a) => psum + Math.pow(a.data.val - avg, 2), 0) / items.length : 0;
-	$: stddev = Math.sqrt(variance);
+	$: netExpense = items.length > 0 ? items.reduce((psum, a) => psum + a.data.val, 0).toFixed(2) : 0.00;
+	$: avg = items.length > 0 ? (netExpense / items.length).toFixed(2) : 0.00;
+	$: variance = items.length > 0.00 ? 
+		(items.reduce((psum, a) => psum + Math.pow(a.data.val - avg, 2), 0) / items.length).toFixed(2) : 0.0;
+	$: stddev = Math.sqrt(variance).toFixed(2);
 
 	let searchTags = "";
 	let searchTitle = "";
@@ -61,7 +61,7 @@
 
 		JSONRequest("/api/getByAdvanced", sub)
 			.then(data => {
-				items = data.sort((a, b) => { return date_to_float(a.data.date) - date_to_float(b.data.date)});
+				items = data.sort((b, a) => { return date_to_float(a.data.date) - date_to_float(b.data.date)});
 				console.log(data);
 			});
 	}
@@ -116,10 +116,37 @@
 	</form>
 </div>
 
-<p>Net: ${netExpense}</p>
-<p>Average: ${avg}</p>
-<p>Variance: ${variance}</p>
-<p>Standard dev.: ${stddev}</p>
+<div id="basic-stats" class="content">
+	<h2>Stats</h2>
+	<table id="basic-stats-table" class="table">
+		<thead>
+			<tr>
+				<th>Measure</th>
+				<th>Value</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<tr>
+				<td>Net</td>
+				<td>${netExpense}</td>
+			</tr>
+			<tr>
+				<td>Average</td>
+				<td>${avg}</td>
+			</tr>
+			<tr>
+				<td>Variance</td>
+				<td>$<sup>2</sup> {variance}</td>
+			</tr>
+			<tr>
+				<td>Std. dev.</td>
+				<td>${stddev}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
 <table class="table">
 	<thead>
 		<th>Date</th>
@@ -158,7 +185,7 @@
 
 	form {
 		min-width: 20rem;
-		max-width: 60rem;
+		max-width: 45rem;
 		width: 100%;
 	}
 
@@ -176,5 +203,33 @@
 		justify-content: center;
 		font-weight: bold;
 		width: 25%;
+	}
+
+	#basic-stats {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		padding: 1rem;
+	}
+
+	#basic-stats > h2 {
+		display: flex;
+		justify-content: center;
+		padding: 0rem 4rem;
+	}
+
+	#basic-stats-table {
+		min-width: 15rem;
+		max-width: 30rem;
+	}
+
+	th {
+		align-items: center;
+		text-align: center;
+	}
+
+	td {
+		align-items: center;
+		text-align: center;
 	}
 </style>
