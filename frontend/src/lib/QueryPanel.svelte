@@ -72,79 +72,81 @@
 	}
 </script>
 
-<div id="search">
-	<form on:submit={getItemsAdvanced}>
-		<div class="field">
-			<label class="label" for="search-tags">Title contains</label>
-			<div class="control">
-			<input class="input" id="search-tags" bind:value={searchTitle}/>
-			</div>
-		</div>
-
-		<div class="field">
-			<label class="label" for="search-tags">Tags</label>
-			<div class="control">
-			<input class="input" id="search-tags" bind:value={searchTags}/>
-			</div>
-		</div>
-
-
-		<div id="time-search">
+<div id="controls">
+	<div id="search">
+		<form on:submit={getItemsAdvanced}>
 			<div class="field">
-				<label class="label" for="search-tags">Year</label>
+				<label class="label" for="search-tags">Title contains</label>
 				<div class="control">
-				<input class="input" id="search-tags" bind:value={searchYear}/>
+				<input class="input" id="search-tags" bind:value={searchTitle}/>
 				</div>
 			</div>
 
 			<div class="field">
-				<label class="label" for="search-tags">Month</label>
+				<label class="label" for="search-tags">Tags</label>
 				<div class="control">
-				<input class="input" id="search-tags" bind:value={searchMonth}/>
+				<input class="input" id="search-tags" bind:value={searchTags}/>
 				</div>
 			</div>
 
-			<div class="field">
-				<label class="label" for="search-tags">Day</label>
-				<div class="control">
-				<input class="input" id="search-tags" bind:value={searchDay}/>
+
+			<div id="time-search">
+				<div class="field">
+					<label class="label" for="search-tags">Year</label>
+					<div class="control">
+					<input class="input" id="search-tags" bind:value={searchYear}/>
+					</div>
+				</div>
+
+				<div class="field">
+					<label class="label" for="search-tags">Month</label>
+					<div class="control">
+					<input class="input" id="search-tags" bind:value={searchMonth}/>
+					</div>
+				</div>
+
+				<div class="field">
+					<label class="label" for="search-tags">Day</label>
+					<div class="control">
+					<input class="input" id="search-tags" bind:value={searchDay}/>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<button style="display: none"></button>
-	</form>
-</div>
+			<button style="display: none"></button>
+		</form>
+	</div>
 
-<div id="basic-stats" class="content">
-	<h2>Stats</h2>
-	<table id="basic-stats-table" class="table">
-		<thead>
-			<tr>
-				<th>Measure</th>
-				<th>Value</th>
-			</tr>
-		</thead>
+	<div id="basic-stats" class="content">
+		<h2>Stats</h2>
+		<table id="basic-stats-table" class="table">
+			<thead>
+				<tr>
+					<th>Measure</th>
+					<th>Value</th>
+				</tr>
+			</thead>
 
-		<tbody>
-			<tr>
-				<td>Net</td>
-				<td>${netExpense}</td>
-			</tr>
-			<tr>
-				<td>Average</td>
-				<td>${avg}</td>
-			</tr>
-			<tr>
-				<td>Variance</td>
-				<td>$<sup>2</sup> {variance}</td>
-			</tr>
-			<tr>
-				<td>Std. dev.</td>
-				<td>${stddev}</td>
-			</tr>
-		</tbody>
-	</table>
+			<tbody>
+				<tr>
+					<td>Net</td>
+					<td>${netExpense}</td>
+				</tr>
+				<tr>
+					<td>Average</td>
+					<td>${avg}</td>
+				</tr>
+				<tr>
+					<td>Variance</td>
+					<td>$<sup>2</sup> {variance}</td>
+				</tr>
+				<tr>
+					<td>Std. dev.</td>
+					<td>${stddev}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
 
 <table class="table">
@@ -164,8 +166,15 @@
 </table>
 
 <style>
+	#controls {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 1rem;
+	}
+
 	#search {
-		width: 100%;
 		display: flex;
 		justify-content: center;
 		padding: 1rem;
@@ -185,7 +194,7 @@
 
 	form {
 		min-width: 20rem;
-		max-width: 45rem;
+		max-width: 35rem;
 		width: 100%;
 	}
 
@@ -215,7 +224,8 @@
 	#basic-stats > h2 {
 		display: flex;
 		justify-content: center;
-		padding: 0rem 4rem;
+		padding: 0rem 2rem;
+		align-items: center;
 	}
 
 	#basic-stats-table {
