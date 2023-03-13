@@ -107,10 +107,13 @@ impl JsonDatabase {
     }
 
     pub fn from_file(filename: &str) -> Result<JsonDatabase, Error> {
-        let name = Path::new(filename).file_stem().ok_or("INVALIDFILE")
-            .unwrap().to_str().unwrap();
+        let name: &str = match Path::new(filename).file_stem() {
+            Some(x) => x.to_str().unwrap(),
+            None => filename
+        };
+        let data = &fs::read_to_string(filename).unwrap_or("{}".to_string());
         let inner: Mutex<HashMap<String, DatabaseEntry>> = 
-            serde_json::from_str(&fs::read_to_string(filename).expect("{}"))?;
+            serde_json::from_str(data)?;
 
         Ok(JsonDatabase{
             name: name.to_string(),

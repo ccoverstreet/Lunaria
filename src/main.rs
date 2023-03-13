@@ -14,16 +14,11 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    //let db_str = fs::read_to_string("testdb.json").expect("Unable to read database file");
-    //let db = JsonDatabase::from_str("test", &db_str).unwrap();
-
-    let db = JsonDatabase::from_file("testdb.json").unwrap();
-
-
-    println!("{:?}", db);
+    let db = JsonDatabase::from_file("mydb.json").unwrap();
 
     let port = 9090;
     println!("Server started on port {}", port);
+
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db.clone()))
