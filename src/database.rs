@@ -6,9 +6,12 @@ use std::fs;
 use std::fs::{File};
 use std::io::{Write};
 use serde_json::Error;
-use rand::{Rng, thread_rng};
+use rand::{thread_rng};
 use rand::distributions::{Alphanumeric, DistString};
 use chrono::{Datelike};
+use anyhow::{Result, anyhow};
+use thiserror::{Error};
+use actix_web::{error};
 
 use crate::budget::BudgetEntry;
 
@@ -83,13 +86,29 @@ impl DatabaseEntry {
 }
 
 pub trait BudgetDatabase { 
-    fn add_entry(&self, new: BudgetEntry) -> Result<(), ()>;
-    fn delete_entry(&self, id: &str) -> Result<(), ()>;
+    fn add_entry(&self, new: BudgetEntry) -> Result<(), DatabaseError>;
+    fn delete_entry(&self, id: &str) -> Result<(), DatabaseError>;
+    fn update_entry(&self, new: DatabaseEntry) -> Result<(), DatabaseError>;
     fn get_by_id(&self, id: &str) -> Option<DatabaseEntry>;
     fn get_by_month(&self, year: i32, month: u32) -> Vec<DatabaseEntry>;
     fn get_by_tags(&self, tags: &Vec<String>) -> Vec<DatabaseEntry>;
     fn get_by_advanced(&self, params: AdvancedQuery) -> Vec<DatabaseEntry>;
 }
+
+
+#[derive(Debug, Error)]
+pub enum DatabaseError {
+    #[error("Entry was not found")]
+    EntryNotFound,
+
+    #[error("Unable to save database")]
+    SaveError(#[from] std::io::Error),
+
+    #[error("Error during serde serialization")]
+    SerializationError(#[from] serde_json::Error)
+}
+
+impl error::ResponseError for DatabaseError {}
 
 
 #[derive(Debug, Clone)]
@@ -106,7 +125,7 @@ impl JsonDatabase {
         }
     }
 
-    pub fn from_file(filename: &str) -> Result<JsonDatabase, Error> {
+    pub fn from_file(filename: &str) -> Result<JsonDatabase, DatabaseError> {
         let name: &str = match Path::new(filename).file_stem() {
             Some(x) => x.to_str().unwrap(),
             None => filename
@@ -141,40 +160,49 @@ impl JsonDatabase {
 }
 
 impl BudgetDatabase for JsonDatabase {
-    fn add_entry(&self, new: BudgetEntry) -> Result<(),()> {
+    fn add_entry(&self, new: BudgetEntry) -> Result<(),DatabaseError> {
         let mut table = self.table.lock().unwrap();
         let mut rng = thread_rng();
                  
         // Find available key
-        let mut key: String = "".to_string();
-        loop {
+        let key: String = loop {
             let test_key = Alphanumeric.sample_string(&mut rng, 32);
             let contains = table.contains_key(&test_key.clone());
-            if !contains { 
-                key = test_key;
-                break;
+            if contains { 
+                continue;
             }
-        }
+
+            break test_key;
+        };
 
         table.insert(key.clone(), DatabaseEntry{
             id: key,
             data: new
         });
 
-        Self::save(&self.name, table.clone());
-
+        Self::save(&self.name, table.clone())?;
         Ok(())
     }
 
-    fn delete_entry(&self, id: &str) -> Result<(), ()> {
+    fn delete_entry(&self, id: &str) -> Result<(), DatabaseError> {
         let mut table = self.table.lock().unwrap(); 
 
-        match table.remove(id)  {
-            Some(_) => {
-                Self::save(&self.name, table.clone());
-                Ok(())
-            },
-            None => Err(())
+        match table.remove(id) {
+            Some(_) => Ok(Self::save(&self.name, table.clone())?),
+            None => Err(DatabaseError::EntryNotFound)
+        }
+    }
+
+    fn update_entry(&self, new: DatabaseEntry) -> Result<(), DatabaseError> {
+        let mut table = self.table.lock().unwrap();
+
+        let entry = table.get_mut(&new.id);
+        match entry {
+            Some(e) =>  {
+                *e = new;
+                Ok(Self::save(&self.name, table.clone())?)
+            }
+            None => Err(DatabaseError::EntryNotFound)
         }
     }
 

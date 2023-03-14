@@ -19,7 +19,7 @@
 	function date_to_float(d) {
 		const x = d.split("-");
 
-		return x[0] * 366 + x[1] * 30 + x[2] * 1;
+		return x[0] * 366 + x[1] * 31 + x[2] * 1;
 	}
 
 	function getItemsByTags() {
@@ -63,107 +63,120 @@
 			.then(data => {
 				items = data.sort((b, a) => { return date_to_float(a.data.date) - date_to_float(b.data.date)});
 				console.log(data);
+				wrapperElem.focus();
 			});
 	}
 
 	export let refreshCallback = () => {
-		console.log("ASDAS");
 		getItemsAdvanced();
+	}
+
+	let titleContainsElem;
+	let wrapperElem;
+
+	function keydownHandler(event) {
+		if (event.key === "/" && event.srcElement === wrapperElem) {
+			titleContainsElem.focus();	
+			event.preventDefault();
+		}
 	}
 </script>
 
-<div id="controls">
-	<div id="search">
-		<form on:submit={getItemsAdvanced}>
-			<div class="field">
-				<label class="label" for="search-tags">Title contains</label>
-				<div class="control">
-				<input class="input" id="search-tags" bind:value={searchTitle}/>
-				</div>
-			</div>
-
-			<div class="field">
-				<label class="label" for="search-tags">Tags</label>
-				<div class="control">
-				<input class="input" id="search-tags" bind:value={searchTags}/>
-				</div>
-			</div>
-
-
-			<div id="time-search">
+<div bind:this={wrapperElem} tabindex="-1" on:keydown={keydownHandler}>
+	<div id="controls">
+		<div id="search">
+			<form on:submit={getItemsAdvanced}>
 				<div class="field">
-					<label class="label" for="search-tags">Year</label>
+					<label class="label" for="search-tags">Title contains</label>
 					<div class="control">
-					<input class="input" id="search-tags" bind:value={searchYear}/>
+						<input bind:this={titleContainsElem} class="input" id="search-tags" bind:value={searchTitle}/>
 					</div>
 				</div>
 
 				<div class="field">
-					<label class="label" for="search-tags">Month</label>
+					<label class="label" for="search-tags">Tags</label>
 					<div class="control">
-					<input class="input" id="search-tags" bind:value={searchMonth}/>
+					<input class="input" id="search-tags" bind:value={searchTags}/>
 					</div>
 				</div>
 
-				<div class="field">
-					<label class="label" for="search-tags">Day</label>
-					<div class="control">
-					<input class="input" id="search-tags" bind:value={searchDay}/>
+
+				<div id="time-search">
+					<div class="field">
+						<label class="label" for="search-tags">Year</label>
+						<div class="control">
+						<input class="input" id="search-tags" bind:value={searchYear}/>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label" for="search-tags">Month</label>
+						<div class="control">
+						<input class="input" id="search-tags" bind:value={searchMonth}/>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label" for="search-tags">Day</label>
+						<div class="control">
+						<input class="input" id="search-tags" bind:value={searchDay}/>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<button style="display: none"></button>
-		</form>
+				<button style="display: none"></button>
+			</form>
+		</div>
+
+		<div id="basic-stats" class="content">
+			<h2>Stats</h2>
+			<table id="basic-stats-table" class="table">
+				<thead>
+					<tr>
+						<th>Measure</th>
+						<th>Value</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr>
+						<td>Net</td>
+						<td>${netExpense}</td>
+					</tr>
+					<tr>
+						<td>Average</td>
+						<td>${avg}</td>
+					</tr>
+					<tr>
+						<td>Variance</td>
+						<td>$<sup>2</sup> {variance}</td>
+					</tr>
+					<tr>
+						<td>Std. dev.</td>
+						<td>${stddev}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 
-	<div id="basic-stats" class="content">
-		<h2>Stats</h2>
-		<table id="basic-stats-table" class="table">
-			<thead>
-				<tr>
-					<th>Measure</th>
-					<th>Value</th>
-				</tr>
-			</thead>
+	<table class="table">
+		<thead>
+			<th>Date</th>
+			<th>Name</th>
+			<th>Amount</th>
+			<th>Tags</th>
+			<th>Delete</th>
+		</thead>
 
-			<tbody>
-				<tr>
-					<td>Net</td>
-					<td>${netExpense}</td>
-				</tr>
-				<tr>
-					<td>Average</td>
-					<td>${avg}</td>
-				</tr>
-				<tr>
-					<td>Variance</td>
-					<td>$<sup>2</sup> {variance}</td>
-				</tr>
-				<tr>
-					<td>Std. dev.</td>
-					<td>${stddev}</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+		<tbody>
+			{#each items as d}
+				<ItemDisplay data={d} updateCallback={getItemsAdvanced}/>
+			{/each}
+		</tbody>
+	</table>
+
 </div>
-
-<table class="table">
-	<thead>
-		<th>Date</th>
-		<th>Name</th>
-		<th>Amount</th>
-		<th>Tags</th>
-		<th>Delete</th>
-	</thead>
-
-	<tbody>
-		{#each items as d}
-			<ItemDisplay data={d} updateCallback={getItemsAdvanced}/>
-		{/each}
-	</tbody>
-</table>
 
 <style>
 	#controls {

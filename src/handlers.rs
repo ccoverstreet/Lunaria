@@ -1,20 +1,22 @@
 
-use crate::database::{ JsonDatabase, DatabaseEntry, BudgetDatabase, AdvancedQuery};
+use crate::database::{ JsonDatabase, DatabaseEntry, BudgetDatabase, AdvancedQuery,
+    DatabaseError};
 use crate::budget::{BudgetEntry};
 use serde::{Deserialize};
 use std::fmt::{Display, Formatter};
-use actix_web::{web, Responder, http, ResponseError, HttpResponse};
+use actix_web::{web, Responder, http, ResponseError, HttpResponse, error};
 use actix_web::body::{BoxBody};
+use anyhow::{anyhow};
 
 #[derive(Debug)]
 pub struct CustomError {
     status_code: u16,
-    val: &'static str,
+    err: anyhow::Error
 }
 
 impl Display for CustomError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "{}", self.val).unwrap();
+        write!(f, "{:?}", self.err).unwrap();
         Ok(())
     }
 }
@@ -28,7 +30,7 @@ impl ResponseError for CustomError {
         //HttpResponse::<BoxBody>::new(http::StatusCode::from_u16(500).unwrap())
         let res = HttpResponse::<String>::with_body(
             http::StatusCode::INTERNAL_SERVER_ERROR,
-            self.val.to_string()
+            self.err.to_string()
             );
 
         res.map_into_boxed_body()
@@ -48,7 +50,9 @@ pub struct IdQuery {
 
 pub async fn get_by_id_handler(query: web::Json<IdQuery>, db: web::Data<JsonDatabase>)
     -> Result<web::Json<DatabaseEntry>, CustomError> {
-    let x = db.get_by_id(&query.id).ok_or(CustomError{status_code: 500, val: "bad id"});
+    let x = db.get_by_id(&query.id)
+        .ok_or(CustomError{status_code: 500,
+            err: anyhow!("no entry found with id")});
     Ok(web::Json(x?))
 }
 
@@ -82,8 +86,8 @@ pub async fn get_by_advanced_handler(query: web::Json<AdvancedQuery>, db: web::D
 }
 
 pub async fn add_entry_handler(query: web::Json<BudgetEntry>, db: web::Data<JsonDatabase>) 
-    -> Result<web::Json<()>, CustomError> {
-    db.add_entry(query.into_inner());
+    -> Result<web::Json<()>, DatabaseError> {
+    db.add_entry(query.into_inner())?;
     Ok(web::Json(()))
 }
 
@@ -93,7 +97,13 @@ pub struct DeleteQuery {
 }
 
 pub async fn delete_entry_handler(query: web::Json<DeleteQuery>, db: web::Data<JsonDatabase>)
-    -> Result<web::Json<()>, CustomError> {
-    db.delete_entry(&query.id);
+    -> Result<web::Json<()>, DatabaseError> {
+    db.delete_entry(&query.id)?;
     Ok(web::Json(()))
+}
+
+pub async fn update_entry_handler(query: web::Json<DatabaseEntry>, db: web::Data<JsonDatabase>)
+    -> Result<web::Json<()>, DatabaseError> {
+    Ok(web::Json(db.update_entry(query.into_inner())?))
+    //Ok(web::Json((db.update_entry(query.into_inner()))?))
 }
