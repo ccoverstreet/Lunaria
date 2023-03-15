@@ -25,7 +25,7 @@
 	<h2 class="has-text-primary-light">Lunaria</h2>
 	<div style="flex-grow: 1"></div>
 	<a style="height: 100%" href="https://github.com/ccoverstreet/Lunaria">
-		<img src={GithubLogo} style="height: 100%; padding: 0.25rem;"/>
+		<img src={GithubLogo} style="height: 100%; padding: 0.25rem;" alt="GitHub logo"/>
 	</a>
 </div>
 

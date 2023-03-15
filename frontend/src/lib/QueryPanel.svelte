@@ -67,7 +67,7 @@
 			});
 	}
 
-	export let refreshCallback = () => {
+	export const refreshCallback = () => {
 		getItemsAdvanced();
 	}
 
@@ -213,18 +213,6 @@
 
 	table {
 		width: 100%;
-	}
-
-	#header {
-		margin-top: 1rem;
-		display: flex;
-	}
-
-	#header > * {
-		display: flex;
-		justify-content: center;
-		font-weight: bold;
-		width: 25%;
 	}
 
 	#basic-stats {

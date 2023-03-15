@@ -8,7 +8,7 @@
 
 	export let updateCallback = undefined;
 
-	export let showPrompt = () => {
+	export const showPrompt = () => {
 		wrapperElem.style.display = "flex";
 	}
 
