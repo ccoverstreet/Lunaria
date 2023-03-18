@@ -2,7 +2,7 @@
 	import ItemDisplay from "$lib/ItemDisplay.svelte"
 
 
-	let items = []
+	$: items = items ? items : [];
 	$: netExpense = items.length > 0 ? items.reduce((psum, a) => psum + a.data.val, 0).toFixed(2) : 0.00;
 	$: avg = items.length > 0 ? (netExpense / items.length).toFixed(2) : 0.00;
 	$: variance = items.length > 0.00 ? 
@@ -58,11 +58,12 @@
 		};
 
 		console.log(sub);
+		items = [];
 
 		JSONRequest("/api/getByAdvanced", sub)
 			.then(data => {
 				items = data.sort((b, a) => { return date_to_float(a.data.date) - date_to_float(b.data.date)});
-				console.log(data);
+				console.log(items);
 				wrapperElem.focus();
 			});
 	}
@@ -171,6 +172,7 @@
 
 		<tbody>
 			{#each items as d}
+				{JSON.stringify(d)}
 				<ItemDisplay data={d} updateCallback={getItemsAdvanced}/>
 			{/each}
 		</tbody>

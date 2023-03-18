@@ -2,10 +2,10 @@
 	export let data = undefined;
 	export let updateCallback = undefined
 
-	$: curDate = curDate ? curDate : data.data.date;
-	$: curName = curName ? curName : data.data.name;
-	$: curVal = curVal === undefined  ? data.data.val : curVal;
-	$: curTags = curTags ? curTags : data.data.tags.join(" ");
+	let curDate = data.data.date;
+	let curName = data.data.name;
+	let curVal = data.data.val;
+	let curTags = data.data.tags.join(" ");
 
 
 	function deleteItem() {
