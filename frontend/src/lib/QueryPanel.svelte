@@ -172,7 +172,6 @@
 
 		<tbody>
 			{#each items as d}
-				{JSON.stringify(d)}
 				<ItemDisplay data={d} updateCallback={getItemsAdvanced}/>
 			{/each}
 		</tbody>
