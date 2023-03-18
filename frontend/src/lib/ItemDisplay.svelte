@@ -17,6 +17,7 @@
 	}
 
 	function updateHandler(event) {
+		console.log("Initial", data);
 		if (event.key !== "Enter" || !event.shiftKey) return;
 		event.preventDefault();
 

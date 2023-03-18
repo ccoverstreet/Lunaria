@@ -163,6 +163,8 @@ impl BudgetDatabase for JsonDatabase {
     fn add_entry(&self, new: BudgetEntry) -> Result<(),DatabaseError> {
         let mut table = self.table.lock().unwrap();
         let mut rng = thread_rng();
+
+        println!("{:?}", new);
                  
         // Find available key
         let key: String = loop {
