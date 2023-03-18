@@ -37,9 +37,6 @@ impl ResponseError for CustomError {
     }
 }
 
-pub async fn root_handler() -> impl Responder {
-    format!("Hello {}", 1)
-}
 
 #[derive(Deserialize, Clone)]
 pub struct IdQuery {

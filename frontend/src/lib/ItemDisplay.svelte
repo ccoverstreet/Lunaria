@@ -2,12 +2,11 @@
 	export let data = undefined;
 	export let updateCallback = undefined
 
-	$: content = JSON.stringify(data, "", "   ");
+	$: curDate = curDate ? curDate : data.data.date;
+	$: curName = curName ? curName : data.data.name;
+	$: curVal = curVal === undefined  ? data.data.val : curVal;
+	$: curTags = curTags ? curTags : data.data.tags.join(" ");
 
-	let curDate;
-	let curName;
-	let curVal;
-	let curTags;
 
 	function deleteItem() {
 		JSONRequest("/api/deleteEntry", {id: data.id})
@@ -21,6 +20,11 @@
 		if (event.key !== "Enter" || !event.shiftKey) return;
 		event.preventDefault();
 
+		console.log(curDate);
+		console.log(curTags);
+		console.log(curVal);
+		console.log(curName);
+
 		let newData = {
 			id: data.id,
 			data: {
@@ -31,14 +35,10 @@
 			}
 		}
 
-		console.log(curDate);
-		console.log(curTags);
-		console.log(curVal);
-		console.log(curName);
-
 		console.log(newData);
 
 		JSONRequest("/api/updateEntry", newData)
+		if (updateCallback) updateCallback();
 	}
 </script>
 
@@ -49,14 +49,13 @@
 		<td>No item found</td>
 	{:else}	
 		<!--<p style="width: 40ch;">{data.id}</p>-->
-		<td contenteditable=true bind:textContent={curDate}>{data.data.date}</td>
-		<td contenteditable=true bind:textContent={curName}>{data.data.name}</td>
-		<td contenteditable=true bind:textContent={curVal}>{data.data.val.toFixed(2)}</td>
-		<td id="tags" contenteditable=true bind:textContent={curTags} 
+		<td>
+			<input class="input" bind:value={curDate}/></td>
+		<td><textarea class="textarea" bind:value={curName} rows="2"/></td>
+		<td><input class="input" bind:value={curVal}/></td>
+		<td id="tags" 
 			style="white-space: pre-wrap">
-			{#each data.data.tags as tag}
-				<p>{tag} </p>
-			{/each}
+			<textarea class="textarea" bind:value={curTags} rows="2"/>
 		</td>
 		<td style="flex-grow: 0; width: auto;">
 			<button class="button is-danger" on:click={deleteItem}
@@ -72,19 +71,20 @@
 		width: 100%;
 	}
 
-	td {
+	td  {
+		align-items: center;
+		text-align: center;
+		padding: 0.25rem;
+	}
+
+	td > * {
 		vertical-align: middle;
 		align-items: center;
 		text-align: center;
+		border: none;
+		border-width: 0;
+		box-shadow: none;
 	}
 
-	
-	#tags {
-		flex-direction: row;
-		flex-wrap: wrap;
-	}
 
-	#tags > * {
-		padding: 0.5rem;
-	}
 </style>
